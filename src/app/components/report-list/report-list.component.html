@@ -1,0 +1,49 @@
+<div class="report-list-container">
+    <div class="header-row">
+        <h2>Report Jobs</h2>
+        <div class="live-indicator">
+            <div class="pulse-dot"></div>
+            <span>Live Updates</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Date Range</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let report of reports()">
+                    <td class="id-col" title="{{report.id}}">{{ report.id | slice:0:8 }}...</td>
+                    <td>{{ report.reportType }}</td>
+                    <td>{{ report.startDate | date:'mediumDate' }} - {{ report.endDate | date:'mediumDate' }}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getStatusClass(report.status)">
+                            <span *ngIf="report.status === 1" class="processing-icon"></span>
+                            {{ getStatusLabel(report.status) }}
+                        </span>
+                    </td>
+                    <td>{{ report.createdAt | date:'short' }}</td>
+                </tr>
+                <tr *ngIf="isLoading()">
+                    <td colspan="5" class="loading-state">
+                        <span class="empty-text">Loading reports...</span>
+                    </td>
+                </tr>
+                <tr *ngIf="!isLoading() && reports().length === 0">
+                    <td colspan="5" class="empty-state">
+                        <span class="empty-icon">📭</span>
+                        <span class="empty-text">No reports found</span>
+                        <p>Create a new report to get started.</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
