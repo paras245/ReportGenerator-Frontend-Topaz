@@ -28,32 +28,44 @@ export class CreateReportComponent {
 
     errorMessage = '';
 
+    // Handle form submission
     onSubmit() {
-        this.errorMessage = '';
-        if (this.model.reportType && this.model.startDate && this.model.endDate) {
-            if (new Date(this.model.endDate) <= new Date(this.model.startDate)) {
-                this.errorMessage = 'End Date must be greater than Start Date.';
-                return;
-            }
-
-            this.isLoading = true;
-            this.reportService.createReport(this.model).subscribe({
-                next: (res) => {
-                    this.isLoading = false;
-                    console.log('Report created', res);
-                    // Navigate to list
-                    this.router.navigate(['/reports']);
-                },
-                error: (err) => {
-                    this.isLoading = false;
-                    console.error('Error creating report', err);
-                    this.errorMessage = 'Failed to submit report request.';
+        try {
+            this.errorMessage = '';
+            if (this.model.reportType && this.model.startDate && this.model.endDate) {
+                if (new Date(this.model.endDate) <= new Date(this.model.startDate)) {
+                    this.errorMessage = 'End Date must be greater than Start Date.';
+                    return;
                 }
-            });
+
+                this.isLoading = true;
+                this.reportService.createReport(this.model).subscribe({
+                    next: (res) => {
+                        this.isLoading = false;
+                        console.log('Report created', res);
+                        // Navigate to list
+                        this.router.navigate(['/reports']);
+                    },
+                    error: (err) => {
+                        this.isLoading = false;
+                        console.error('Error creating report', err);
+                        this.errorMessage = 'Failed to submit report request.';
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error in onSubmit', error);
+            this.isLoading = false;
+            this.errorMessage = 'An unexpected error occurred.';
         }
     }
 
+    // Cancel and go back to list
     onClose() {
-        this.router.navigate(['/reports']);
+        try {
+            this.router.navigate(['/reports']);
+        } catch (error) {
+            console.error('Error in onClose', error);
+        }
     }
 }

@@ -24,27 +24,35 @@ export class SignalRService {
      * Configures the connection to handle 'ReceiveUpdate' events.
      */
     public startConnection = () => {
-        this.hubConnection = new signalR.HubConnectionBuilder()
-            .withUrl('https://localhost:7232/reportHub', {
-                // 'withCredentials' is set to false to avoid CORS issues when the backend allows any origin (*).
-                withCredentials: false
-            })
-            .build();
+        try {
+            this.hubConnection = new signalR.HubConnectionBuilder()
+                .withUrl('https://localhost:7232/reportHub', {
+                    // 'withCredentials' is set to false to avoid CORS issues when the backend allows any origin (*).
+                    withCredentials: false
+                })
+                .build();
 
-        this.hubConnection
-            .start()
-            .then(() => console.log('SignalR Connection started'))
-            .catch(err => console.error('Error while starting connection: ' + err));
+            this.hubConnection
+                .start()
+                .then(() => console.log('SignalR Connection started'))
+                .catch(err => console.error('Error while starting connection: ' + err));
 
-        // Listen for the 'ReceiveUpdate' event triggered by the backend BackgroundService
-        this.hubConnection.on('ReceiveUpdate', (job: ReportJob) => {
-            console.log('SignalR: Job update received:', job);
-            // Update the signal, which notifies any listening components (like ReportListComponent)
-            this.jobUpdate.set(job);
-        });
+            // Listen for the 'ReceiveUpdate' event triggered by the backend BackgroundService
+            this.hubConnection.on('ReceiveUpdate', (job: ReportJob) => {
+                try {
+                    console.log('SignalR: Job update received:', job);
+                    // Update the signal, which notifies any listening components (like ReportListComponent)
+                    this.jobUpdate.set(job);
+                } catch (error) {
+                    console.error('Error handling ReceiveUpdate', error);
+                }
+            });
 
-        this.hubConnection.onclose((error) => {
-            console.warn('SignalR Connection closed', error);
-        });
+            this.hubConnection.onclose((error) => {
+                console.warn('SignalR Connection closed', error);
+            });
+        } catch (error) {
+            console.error('Error initializing SignalR connection', error);
+        }
     }
 }

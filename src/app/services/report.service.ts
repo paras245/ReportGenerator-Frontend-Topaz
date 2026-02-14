@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { ReportJob, CreateReportDto } from '../models';
 
 /**
@@ -20,7 +20,13 @@ export class ReportService {
      * @returns An Observable of the created ReportJob.
      */
     createReport(report: CreateReportDto): Observable<ReportJob> {
-        return this.http.post<ReportJob>(`${this.apiUrl}/reports`, report);
+        return this.http.post<ReportJob>(`${this.apiUrl}/reports`, report)
+            .pipe(
+                catchError(err => {
+                    console.error('Error in createReport service call', err);
+                    return throwError(() => err);
+                })
+            );
     }
 
     /**
@@ -28,6 +34,12 @@ export class ReportService {
      * @returns An Observable of an array of ReportJobs.
      */
     getReports(): Observable<ReportJob[]> {
-        return this.http.get<ReportJob[]>(`${this.apiUrl}/reports`);
+        return this.http.get<ReportJob[]>(`${this.apiUrl}/reports`)
+            .pipe(
+                catchError(err => {
+                    console.error('Error in getReports service call', err);
+                    return throwError(() => err);
+                })
+            );
     }
 }
